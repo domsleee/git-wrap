@@ -1,13 +1,13 @@
 from functools import partial
 import subprocess
-from src.Sh import Sh
+from . import Sh
 import re
 
 GIT_ARGS = ['git']
 
 class GitWrap:
   def __init__(self, path):
-    self._sh = Sh(path)
+    self._sh = Sh.Sh(path)
     self._git_args = GIT_ARGS + ['-C', self._sh.path]
 
     try:
