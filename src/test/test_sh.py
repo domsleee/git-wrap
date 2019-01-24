@@ -1,5 +1,5 @@
 import pytest
-import Sh
+import src.Sh as Sh
 
 def test_constructor():
   sh = Sh.Sh('/')

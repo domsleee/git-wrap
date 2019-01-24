@@ -1,6 +1,6 @@
 from functools import partial
 import subprocess
-from Sh import Sh
+from src.Sh import Sh
 import re
 
 GIT_ARGS = ['git']

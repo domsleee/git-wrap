@@ -1,4 +1,4 @@
-import GitWrap
+import src.GitWrap as GitWrap
 import os
 import shutil
 
