@@ -7,8 +7,8 @@ GIT_ARGS = ['git']
 
 class GitWrap:
   def __init__(self, path):
-    self.sh = Sh(path)
-    self.git_args = GIT_ARGS + ['--exec-path='+self.sh.path]
+    self._sh = Sh(path)
+    self._git_args = GIT_ARGS + ['-C', self._sh.path]
 
     try:
       self._check_call('which git')
@@ -18,15 +18,21 @@ class GitWrap:
     # generate methods for all git subprograms.
     def f(subprogram, *args):
       args_arr = list(args)
-      return self._check_call(GIT_ARGS + [subprogram] + args_arr)
+      return self._check_call(self._git_args + [subprogram] + args_arr)
 
-    subprograms = self._get_all_commands()
-    for subprogram in subprograms:
+    self._subprograms = self._get_all_commands()
+    for subprogram in self._subprograms:
       setattr(self, subprogram, partial(f, subprogram))
   
+  def list_commands(self):
+    ''' list all available git commands that can be called
+    '''
+    return sorted(self._subprograms)
+
   def _get_all_commands(self):
     stdout, stderr = self._check_call(['git', 'help',  '--all'])
     commands = []
+
     spl = stdout.split('\n')
     cms = False
     num_spaces = 0
@@ -56,28 +62,35 @@ class GitWrap:
       shell=True
     )
     stdout, stderr = p.communicate(None)
+    stdout = stdout.decode('utf-8')
+    stderr = stderr.decode('utf-8')
     rc = p.returncode
 
     if rc != 0:
       sep = '-'*80
-      message = "Error code %d on command '%s'\n\nSTDOUT\n%s\n%s" % (rc, args, sep, stdout)
+      message = (
+        "Error code %d on command '%s'\n" % (rc, args)+
+        "STDOUT\n%s\n%s" % (sep, stdout)+
+        "STDERR\n%s\n%s" % (sep, stderr)
+      )
       raise GitException(message)
     else:
       return (stdout, stderr)
 
   # Sh functions
   def cwd(self):
-    return self.sh.cwd()
+    return self._sh.cwd()
   
   def cd(self, path):
-    self.sh.cd(self, path)
+    self._sh.cd(self, path)
 
 
 class GitException(Exception):
   pass
 
+# for debugging
 if __name__ == '__main__':
-  g = GitEz('/')
+  g = GitWrap('/')
+  print(g.list_commands())
   stdout, stderr = g.help()
-  print(g.cwd())
   print(stdout)
