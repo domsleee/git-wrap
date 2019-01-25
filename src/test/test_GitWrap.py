@@ -3,7 +3,7 @@ import os
 import shutil
 
 def test_constructor():
-  gh = GitWrap.GitWrap('/tmp')
+  GitWrap.GitWrap('/tmp')
 
 def long_string(s):
   return '\n'.join(s.splitlines())
@@ -16,7 +16,7 @@ def test_basics():
     fout.write('hi')
   repo.init()
   repo.add('.')
-  stdout, stderr = repo.status()
+  stdout = repo.status()
 
   EXP_STATUS = long_string('''On branch master
 

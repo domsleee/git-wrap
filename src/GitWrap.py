@@ -18,7 +18,7 @@ class GitWrap:
 
     # generate methods for all git subprograms.
     def f(subprogram, args=[]):
-      if isinstance(args, basestring):
+      if isinstance(args, str):
         args = ' '.join(self._git_args) + ' ' + subprogram + ' ' + args
       else:
         args = ' '.join([pipes.quote(arg) for arg in self._git_args + [subprogram] + args])
@@ -94,5 +94,5 @@ class GitException(Exception):
 if __name__ == '__main__':
   g = GitWrap('/')
   print(g.list_commands())
-  stdout, stderr = g.help()
+  stdout = g.help()
   print(stdout)
