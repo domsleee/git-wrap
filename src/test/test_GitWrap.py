@@ -9,7 +9,8 @@ def long_string(s):
   return '\n'.join(s.splitlines())
 
 def test_basics():
-  shutil.rmtree('/tmp/GitWrap')
+  if os.path.isdir('/tmp/GitWrap'):
+    shutil.rmtree('/tmp/GitWrap')
   os.mkdir('/tmp/GitWrap')
   repo = GitWrap.GitWrap('/tmp/GitWrap')
   with open('/tmp/GitWrap/a', 'w') as fout:
