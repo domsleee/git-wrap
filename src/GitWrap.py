@@ -1,5 +1,6 @@
 from functools import partial
 import subprocess
+import pipes
 from . import Sh
 import re
 
@@ -16,9 +17,12 @@ class GitWrap:
       raise ValueError('git is not installed on your system')
 
     # generate methods for all git subprograms.
-    def f(subprogram, *args):
-      args_arr = list(args)
-      return self._check_call(self._git_args + [subprogram] + args_arr)
+    def f(subprogram, args=[]):
+      if isinstance(args, basestring):
+        args = ' '.join(self._git_args) + ' ' + subprogram + ' ' + args
+      else:
+        args = ' '.join([pipes.quote(arg) for arg in self._git_args + [subprogram] + args])
+      return self._check_call(args)
 
     self._subprograms = self._get_all_commands()
     for subprogram in self._subprograms:
@@ -30,7 +34,7 @@ class GitWrap:
     return sorted(self._subprograms)
 
   def _get_all_commands(self):
-    stdout, stderr = self._check_call(['git', 'help',  '--all'])
+    stdout = self._check_call(('git help --all'))
     commands = []
 
     spl = stdout.split('\n')
@@ -52,8 +56,6 @@ class GitWrap:
     return commands
 
   def _check_call(self, args):
-    if type(args) is list:
-      args = subprocess.list2cmdline(args)
     p = subprocess.Popen(
       args,
       stdin=subprocess.PIPE,
@@ -75,7 +77,7 @@ class GitWrap:
       )
       raise GitException(message)
     else:
-      return (stdout, stderr)
+      return stdout
 
   # Sh functions
   def cwd(self):
